@@ -117,7 +117,7 @@ def open_exel(name):
     # Преобразование данных в нужный формат
     data = []
     for index, row in df.iterrows():
-        record = {'id': index + 1, 'Год': int(row['Год'])}
+        record = {'id': index + 1, 'Год': row['Год']}
         for month in range(1, 13):
             month_name = df.columns[month]
             record[month_name] = float(str(row[month_name]).replace(',', '.'))

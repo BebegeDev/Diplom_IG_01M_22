@@ -13,13 +13,14 @@ def main_ges(q, zf, param_hps):
         wint, ny, k = param_hps['Осенне–зимний_период'], float(param_hps['КПД']), float(param_hps['k_N'])
         connect = add_user()
         hps = SmallHPS()
-        sco = SecurityCurves(50.00001)
-        sct = SecurityCurves(80.00001)
+        sco = SecurityCurves(50)
+        sct = SecurityCurves(90)
         hps.calc_security_curves(q)
         hps.calc_z_v_f(zf)
         hps.q_min_q_max()
         hps.calc_summ_wint_q()
         hps.calc_summ_wint_z(absolute_mark)
+
 
         f.write("<html><head><title>Отчет HPS</title></head><body>")
         f.write("<h1>Отчет по расчету</h1>")
@@ -31,6 +32,7 @@ def main_ges(q, zf, param_hps):
         sco.calc_avg_monthly_year()
         f.write('<hr>')
         sco.calc_annual_runoff(summ, wint, q)
+
         f.write("<h2>Расчетные значения обеспеченности для выбора маловодного и средневодного года</h2>")
         f.write(
             f"<p>Ближайший год слева от {sco.percent}%: {sco.left['Годы_ср_г']}, P = {sco.left['P,%']}%, Qrt = {round(sco.left['Qrt'], 2)}</p>")
@@ -43,9 +45,10 @@ def main_ges(q, zf, param_hps):
 
         f.write(f'<p>Для года {sco.year_one} коэффициент в межень {round(sco.km_one, 2)}</p>')
         f.write(f'<p>Для года {sco.year_one} коэффициент в половодье {round(sco.kp_one, 2)}</p>')
-        f.write(f'<p>Для года {sco.year_two} коэффициент в межень {round(sco.kp_two, 2)}</p>')
+        f.write(f'<p>Для года {sco.year_two} коэффициент в межень {round(sco.km_two, 2)}</p>')
         f.write(f'<p>Для года {sco.year_two} коэффициент в половодье {round(sco.kp_two, 2)}</p>')
-        f.write(f"<p>В качестве расчетного средневодного года принимаем {round(sco.result[2])}</p>")
+        f.write(f"<p>В качестве расчетного средневодного года принимаем {sco.result}</p>")
+
         f.write('<hr>')
         f.write(
             f"<p>Ближайший год слева от {sct.percent}%: {sct.left['Годы_ср_г']}, P = {round(sct.left['P,%'], 2)}%, Qrt = {round(sct.left['Qrt'], 2)}</p>")
@@ -53,9 +56,9 @@ def main_ges(q, zf, param_hps):
             f"<p>Ближайший год справа от {sct.percent}%: {sct.right['Годы_ср_г']}, P = {round(sct.right['P,%'], 2)}%, Qrt = {round(sct.right['Qrt'], 2)}</p>")
         f.write(f'<p>Для года {sct.year_one} коэффициент в межень {round(sct.km_one, 2)}</p>')
         f.write(f'<p>Для года {sct.year_one} коэффициент в половодье {round(sct.kp_one, 2)}</p>')
-        f.write(f'<p>Для года {sct.year_two} коэффициент в межень {round(sct.kp_two, 2)}</p>')
+        f.write(f'<p>Для года {sct.year_two} коэффициент в межень {round(sct.km_two, 2)}</p>')
         f.write(f'<p>Для года {sct.year_two} коэффициент в половодье {round(sct.kp_two, 2)}</p>')
-        f.write(f"<p>В качестве расчетного маловодного года принимаем {round(sct.result[2], )}</p>")
+        f.write(f"<p>В качестве расчетного маловодного года принимаем {sct.result}</p>")
         f.write('<hr>')
         f.write("<h2>Годовой сток</h2>")
         f.write(
@@ -85,7 +88,6 @@ def main_ges(q, zf, param_hps):
             f.write(f"<pre>{m}: {data}</pre>")
         f.write("<p>Для выбранного расчетного маловодного года и принятой обеспеченности вычисляется значение мощности на бытовом стоке для каждого месяца года:</p>")
         sct.calc_power(k, f)
-
         hps.calc_h(npu, absolute_mark)
         hps.calculate_total_average(q)
         min_power, max_power, min_h, max_h, min_q, max_q = sct.get_power_h_q_max_min()

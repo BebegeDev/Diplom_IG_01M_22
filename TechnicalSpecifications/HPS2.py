@@ -226,10 +226,10 @@ class SecurityCurves:
 
     def calc_conversion_factors(self, yearly_averages):
         self.left = yearly_averages[yearly_averages['P,%'] <= self.percent].iloc[-1]
-        self.right = yearly_averages[yearly_averages['P,%'] > self.percent].iloc[0]
+        self.right = yearly_averages[yearly_averages['P,%'] >= self.percent].iloc[0]
 
-        self.year_one = int(self.left['Годы_ср_г'])
-        self.year_two = int(self.right['Годы_ср_г'])
+        self.year_one = self.left['Годы_ср_г']
+        self.year_two = self.right['Годы_ср_г']
         qmi_one = yearly_averages.loc[yearly_averages['Годы_м'] == self.year_one, 'Qмi'].values[0]
         qmi_two = yearly_averages.loc[yearly_averages['Годы_м'] == self.year_two, 'Qмi'].values[0]
         qpi_one = yearly_averages.loc[yearly_averages['Годы_п'] == self.year_one, 'Qпi'].values[0]
@@ -246,6 +246,7 @@ class SecurityCurves:
             self.result = [self.km_one, self.kp_one, self.year_one]
         else:
             self.result = [self.km_two, self.kp_two, self.year_two]
+
 
     def get_avg_monthly_year(self):
         return self.result

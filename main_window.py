@@ -305,10 +305,10 @@ class MainWindow(QMainWindow):
             if filename:
                 data = pd.read_excel(filename)
                 self.q = c.open_exel(filename)
-                # Преобразуем данные, чтобы сделать их более удобными для обработки
-                formatted_data = pd.melt(data, id_vars=["Год"], var_name="Месяц", value_name="Значение")
+                formatted_data = pd.melt(data, id_vars="Год", var_name="Месяц", value_name="Значение")
                 # Сохраняем данные в param_expenses
                 self.param_expenses = formatted_data.to_dict('records')
+
                 years = formatted_data['Год'].unique()
 
                 tab_widget = QTabWidget()
