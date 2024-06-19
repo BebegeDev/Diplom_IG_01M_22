@@ -141,6 +141,7 @@ def calc_energy_hps(name, data):
 
     # Расчет выработки электроэнергии в kWh
     df['Energy_kWh_per_hour'] = df['power']  # kW to kWh (за час)
+    print(df['power'])
     df['Energy_kWh_per_day'] = df['Energy_kWh_per_hour'] * 24
     df['Energy_kWh_per_month'] = df['Energy_kWh_per_day'] * df['Days']
 

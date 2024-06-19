@@ -119,8 +119,7 @@ class SmallHPS:
     def checking_work_GA(self, GA_list, data, k, q_min, f):
         self.data_list = []
         self.name_list_ga = []
-        c = 0
-
+        self.list_power = []
         f.write("<h2>Выбор ГА</h2>")
         for ga in GA_list:
             ga_df = pd.DataFrame([ga])
@@ -133,8 +132,9 @@ class SmallHPS:
                         new_data[m] = {'power': 0}
                     else:
                         if ga_df['Q_max'].iloc[0] * n >= value['q'] >= ga_df['Q_min'].iloc[0] * n:
+
                             new_data[m] = {'power': k * value['q'] * value['h']}
-                        elif value['q'] < ga_df['Q_min'].iloc[0] * n:
+                        elif value['q'] < ga_df['Q_min'].iloc[0] * n and value['q'] >= ga_df['Q_min'].iloc[0]:
                             n_new = math.floor(value['q'] / ga_df['Q_min'].iloc[0])
                             new_data[m] = {'power':k * value['q'] * value['h']}
                         elif value['q'] > ga_df['Q_max'].iloc[0] * n:
@@ -142,13 +142,13 @@ class SmallHPS:
 
                 total_power = sum(values['power'] for values in new_data.values())
                 if total_power != 0:
+                    self.list_power.append(power)
                     f.write(f"<h3>{ga['GA']}</h3>")
                     f.write("<table border='1'>")
                     f.write("<tr><th>Parameter</th><th>Value</th></tr>")
                     for col in ga_print.columns:
                         f.write(f"<tr><td>{col}</td><td>{ga_print[col].iloc[0]}</td></tr>")
                     f.write("</table>")
-                    c += 1
                     self.name_list_ga.append(ga['GA'])
                     f.write(f"<p>Количество ГА: {n}</p>")
                     f.write(f"<p>Установленная мощность: {power}</p>")
@@ -173,17 +173,36 @@ class SmallHPS:
 
 
     def print_new_power(self, f):
+        days_in_month = {
+            'Январь': 31, 'Февраль': 28, 'Март': 31, 'Апрель': 30, 'Май': 31, 'Июнь': 30, 'Июль': 31, 'Август': 31,
+            'Сентябрь': 30, 'Октябрь': 31, 'Ноябрь': 30, 'Декабрь': 31
+        }
         n = [1,2,3] * len(self.data_list)
         for name, ga in enumerate(self.data_list):
+            ee_year = 0
+            power = self.list_power[name]
             _, ga = ga
             f.write(f"<h3>ГА: {self.name_list_ga[name]} кол-во ГА {n[name]}</h3>")
             f.write("<table border='1'>")
-            f.write("<tr><th>Месяц</th><th>Мощность</th></tr>")
+            f.write("<tr><th>Месяц</th>"
+                    "<th>Мощность</th>"
+                    "<th>Выработка в чач</th>"
+                    "<th>Выработка в день</th>"
+                    "<th>Выработка в месяц</th>"
+                    "</tr>")
             for m, value in ga.items():
-                f.write(f"<tr><td>{m}</td><td>{value['power']}</td></tr>")
+                d = days_in_month[m]
+                ee_year += value['power'] * 24 * d
+                f.write(f"<tr><td>{m}</td>"
+                        f"<td>{value['power']}</td>"
+                        f"<td>{value['power']}</td>"
+                        f"<td>{value['power'] * 24}</td>"
+                        f"<td>{value['power'] * 24 * d}</td>"
+                        f"</tr>")
             f.write("</table>")
             f.write("<br>")
-
+            f.write(
+                f"<p>КИУМ {ee_year/(power * 8760)}</p>")
 
 class SecurityCurves:
 
